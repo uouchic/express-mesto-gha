@@ -42,7 +42,7 @@ const updateUser = (req, res) => {
 
   return User.findByIdAndUpdate(req.user._id, { name, about }).then(
     (updateUser) => {
-      return res.status(201).send(updateUser);
+      return res.status(200).send(updateUser);
     }
   )
   .catch ((err) => {
@@ -54,9 +54,9 @@ const updateUser = (req, res) => {
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
 
-  return User.findByIdAndUpdate(req.user._id, { avatar }).then(
+  return User.findByIdAndUpdate(req.user._id, { avatar }, {new: true}).then(
     (updateAvatar) => {
-      return res.status(201).send(updateAvatar);
+      return res.status(200).send(updateAvatar);
     }
   )
   .catch ((err) => {
