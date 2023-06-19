@@ -34,6 +34,13 @@ app.use((req, res, next) => {
 app.use(userRouters);
 app.use(cardRouters);
 
+
+
+app.get('*', function(req, res){
+  res.status(404).send({ message: "Страница не найдена" });
+
+});
+
 app.listen(PORT, () => {
   // Если всё работает, консоль покажет, какой порт приложение слушает
   console.log(`Сервер запущен на порту ${PORT}`);
