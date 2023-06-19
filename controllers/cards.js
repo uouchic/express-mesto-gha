@@ -3,6 +3,9 @@ const Card = require("../models/card");
 const getCards = (req, res) => {
   return Card.find({}).then((cards) => {
     return res.status(200).send(cards);
+  })
+  .catch((err) => {
+    return res.status(400).send({ message: "Карточки не найдены" });
   });
 };
 
@@ -15,6 +18,9 @@ const createCard = (req, res) => {
 
   return Card.create({ name, link, owner }).then((newCard) => {
     return res.status(201).send(newCard);
+  })
+  .catch((err) => {
+    return res.status(400).send({ message: "Карточка не создана" });
   });
 };
 
@@ -23,6 +29,9 @@ const deleteCardById = (req, res) => {
 
   return Card.findByIdAndRemove(cardId).then((card) => {
     return res.status(200).send(card);
+  })
+  .catch((err) => {
+    return res.status(400).send({ message: "Карточка не удалена" });
   });
 };
 
@@ -33,6 +42,9 @@ const likeCard = (req, res) => {
     { new: true }
   ).then((card) => {
     return res.status(200).send(card);
+  })
+  .catch((err) => {
+    return res.status(400).send({ message: "Лайк не поставлен" });
   });
 };
 
@@ -43,6 +55,9 @@ const dislikeCard = (req, res) => {
     { new: true }
   ).then((card) => {
     return res.status(200).send(card);
+  })
+  .catch((err) => {
+    return res.status(400).send({ message: "Лайк не удален" });
   });
 };
 
