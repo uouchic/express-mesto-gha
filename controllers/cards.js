@@ -6,6 +6,8 @@ const getCards = (req, res) => {
   });
 };
 
+//Добавление карточки
+
 const createCard = (req, res) => {
   const owner = req.user._id;
 

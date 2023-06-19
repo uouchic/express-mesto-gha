@@ -35,21 +35,27 @@ const createUser = (req, res) => {
 };
 
 
-
+//Обновление данных пользователя
 
 const updateUser = (req, res) => {
   const { name, about } = req.body;
 
-  return User.findByIdAndUpdate(req.user._id, { name, about }).then(
+  return User.findByIdAndUpdate(req.user._id, { name, about }, {new: true, runValidators: true}).then(
     (updateUser) => {
       return res.status(200).send(updateUser);
     }
   )
   .catch ((err) => {
+    console.log(err);
     return res.status(400).send({"message": "Пользователь не обновлен"});
+
+
 
   });
 };
+
+
+//Обновление аватара пользователя
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
