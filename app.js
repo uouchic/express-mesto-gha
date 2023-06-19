@@ -18,7 +18,7 @@ const app = express();
 
 app.use(bodyParser.json());
 
-// respond with "hello world" when a GET request is made to the homepage
+
 app.get("/", function (req, res) {
   res.send("Привет мир!");
 });
@@ -34,11 +34,8 @@ app.use((req, res, next) => {
 app.use(userRouters);
 app.use(cardRouters);
 
-
-
-app.all('*', function(req, res){
+app.use("*", function (req, res) {
   res.status(404).send({ message: "Страница не найдена" });
-
 });
 
 app.listen(PORT, () => {

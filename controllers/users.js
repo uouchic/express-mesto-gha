@@ -39,8 +39,6 @@ const createUser = (req, res) => {
     });
 };
 
-//Обновление данных пользователя
-
 const updateUser = (req, res) => {
   const { name, about } = req.body;
 
@@ -57,8 +55,6 @@ const updateUser = (req, res) => {
       return res.status(400).send({ message: "Пользователь не обновлен" });
     });
 };
-
-//Обновление аватара пользователя
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
