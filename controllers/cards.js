@@ -28,12 +28,19 @@ const deleteCardById = (req, res) => {
   const { cardId } = req.params;
 
   return Card.findByIdAndRemove(cardId).then((card) => {
+    if (!card) {
+      return res
+        .status(404)
+        .send({ message: "Карточка с таким id не найдена" });
+    }
     return res.status(200).send(card);
   })
   .catch((err) => {
     return res.status(400).send({ message: "Карточка не удалена" });
   });
 };
+
+
 
 const likeCard = (req, res) => {
   Card.findByIdAndUpdate(
