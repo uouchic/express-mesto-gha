@@ -3,6 +3,10 @@ const User = require("../models/user");
 const getUsers = (req, res) => {
   return User.find({}).then((users) => {
     return res.status(200).send(users);
+  })
+  .catch ((err) => {
+    return res.status(400).send({"message": "Пользователи не создены"});
+
   });
 };
 
@@ -11,6 +15,10 @@ const getUserById = (req, res) => {
 
   return User.findById(userId).then((user) => {
     return res.status(200).send(user);
+  })
+  .catch ((err) => {
+    return res.status(400).send({"message": "Пользователь не найден"});
+
   });
 };
 
@@ -19,8 +27,15 @@ const createUser = (req, res) => {
 
   return User.create(newUserData).then((newUser) => {
     return res.status(201).send(newUser);
+  })
+  .catch ((err) => {
+    return res.status(400).send({"message": "Пользователь не создан"});
+
   });
 };
+
+
+
 
 const updateUser = (req, res) => {
   const { name, about } = req.body;
@@ -29,7 +44,11 @@ const updateUser = (req, res) => {
     (updateUser) => {
       return res.status(201).send(updateUser);
     }
-  );
+  )
+  .catch ((err) => {
+    return res.status(400).send({"message": "Пользователь не обновлен"});
+
+  });
 };
 
 const updateAvatar = (req, res) => {
@@ -39,7 +58,11 @@ const updateAvatar = (req, res) => {
     (updateAvatar) => {
       return res.status(201).send(updateAvatar);
     }
-  );
+  )
+  .catch ((err) => {
+    return res.status(400).send({"message": "Аватар не обновлен"});
+
+  });
 };
 
 module.exports = {
