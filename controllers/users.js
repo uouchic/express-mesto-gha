@@ -10,10 +10,15 @@ const getUsers = (req, res) => {
   });
 };
 
+
+
 const getUserById = (req, res) => {
   const { userId } = req.params;
 
   return User.findById(userId).then((user) => {
+    if (!user) {
+      return res.status(404).send({"message": "Пользователь с таким id не найден"});
+    }
     return res.status(200).send(user);
   })
   .catch ((err) => {
