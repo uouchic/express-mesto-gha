@@ -1,26 +1,24 @@
-const Card = require("../models/card");
+const Card = require('../models/card');
 
 const getCards = (req, res) => {
-  return Card.find({})
-    .then((cards) => {
-      return res.status(200).send(cards);
-    })
-    .catch((err) => {
-      return res.status(400).send({ message: "Карточки не найдены" });
-    });
+  Card.find({})
+    .then((cards) => res.status(200).send(cards))
+    .catch(() => res.status(400).send({ message: 'Карточки не найдены' }));
 };
 
 const createCard = (req, res) => {
   const owner = req.user._id;
-
   const { name, link } = req.body;
 
   return Card.create({ name, link, owner })
-    .then((newCard) => {
-      return res.status(201).send(newCard);
-    })
+    .then((newCard) => res.status(201).send(newCard))
     .catch((err) => {
-      return res.status(400).send({ message: "Карточка не создана" });
+      if (err.name === 'ValidationError') {
+        return res
+          .status(400)
+          .send({ message: 'Карточка не создана, переданы невалидные данные' });
+      }
+      return res.status(500).send({ message: 'Непредвиденная ошибка' });
     });
 };
 
@@ -32,12 +30,14 @@ const deleteCardById = (req, res) => {
       if (!card) {
         return res
           .status(404)
-          .send({ message: "Карточка с таким id не найдена" });
+          .send({ message: 'Карточка с таким id не найдена' });
       }
       return res.status(200).send(card);
     })
     .catch((err) => {
-      return res.status(400).send({ message: "Карточка не удалена" });
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Карточка не удалена, некоректный id карточки' });
+      } else res.status(500).send({ message: 'Непредвиденная ошибка' });
     });
 };
 
@@ -45,38 +45,34 @@ const likeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
-    { new: true }
+    { new: true },
   )
     .then((card) => {
       if (!card) {
         return res
           .status(404)
-          .send({ message: "Карточка с таким id не найдена" });
+          .send({ message: 'Карточка с таким id не найдена' });
       }
       return res.status(200).send(card);
     })
-    .catch((err) => {
-      return res.status(400).send({ message: "Лайк не поставлен" });
-    });
+    .catch(() => res.status(400).send({ message: 'Лайк не поставлен' }));
 };
 
 const dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
-    { new: true }
+    { new: true },
   )
     .then((card) => {
       if (!card) {
         return res
           .status(404)
-          .send({ message: "Карточка с таким id не найдена" });
+          .send({ message: 'Карточка с таким id не найдена' });
       }
       return res.status(200).send(card);
     })
-    .catch((err) => {
-      return res.status(400).send({ message: "Лайк не удален" });
-    });
+    .catch(() => res.status(400).send({ message: 'Лайк не удален' }));
 };
 
 module.exports = {

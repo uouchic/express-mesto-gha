@@ -1,14 +1,8 @@
-const User = require("../models/user");
+const User = require('../models/user');
 
-const getUsers = (req, res) => {
-  return User.find({})
-    .then((users) => {
-      return res.status(200).send(users);
-    })
-    .catch((err) => {
-      return res.status(400).send({ message: "Пользователи не создены" });
-    });
-};
+const getUsers = (req, res) => User.find({})
+  .then((users) => res.status(200).send(users))
+  .catch(() => res.status(500).send({ message: 'Непредвиденная ошибка' }));
 
 const getUserById = (req, res) => {
   const { userId } = req.params;
@@ -18,12 +12,17 @@ const getUserById = (req, res) => {
       if (!user) {
         return res
           .status(404)
-          .send({ message: "Пользователь с таким id не найден" });
+          .send({ message: 'Пользователь с таким id не найден' });
       }
       return res.status(200).send(user);
     })
     .catch((err) => {
-      return res.status(400).send({ message: "Пользователь не найден" });
+      if (err.name === 'CastError') {
+        return res.status(400).send({
+          message: 'Пользователь не найден, некоректный id пользователя',
+        });
+      }
+      return res.status(500).send({ message: 'Непредвиденная ошибка' });
     });
 };
 
@@ -31,11 +30,14 @@ const createUser = (req, res) => {
   const newUserData = req.body;
 
   return User.create(newUserData)
-    .then((newUser) => {
-      return res.status(201).send(newUser);
-    })
+    .then((newUser) => res.status(201).send(newUser))
     .catch((err) => {
-      return res.status(400).send({ message: "Пользователь не создан" });
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({
+          message: 'Пользователь не создан, переданы невалидные данные',
+        });
+      }
+      return res.status(500).send({ message: 'Непредвиденная ошибка' });
     });
 };
 
@@ -45,27 +47,29 @@ const updateUser = (req, res) => {
   return User.findByIdAndUpdate(
     req.user._id,
     { name, about },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
-    .then((updateUser) => {
-      return res.status(200).send(updateUser);
-    })
+    .then((updateUserData) => res.status(200).send(updateUserData))
     .catch((err) => {
-      console.log(err);
-      return res.status(400).send({ message: "Пользователь не обновлен" });
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({
+          message: 'Пользователь не обновлен, переданы невалидные данные',
+        });
+      }
+      return res.status(500).send({ message: 'Непредвиденная ошибка' });
     });
 };
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
 
-  return User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
-    .then((updateAvatar) => {
-      return res.status(200).send(updateAvatar);
-    })
-    .catch((err) => {
-      return res.status(400).send({ message: "Аватар не обновлен" });
-    });
+  return User.findByIdAndUpdate(
+    req.user._id,
+    { avatar },
+    { new: true, runValidators: true },
+  )
+    .then((updateAvatarData) => res.status(200).send(updateAvatarData))
+    .catch(() => res.status(400).send({ message: 'Аватар не обновлен' }));
 };
 
 module.exports = {
