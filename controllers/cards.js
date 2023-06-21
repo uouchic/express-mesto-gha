@@ -55,7 +55,11 @@ const likeCard = (req, res) => {
       }
       return res.status(200).send(card);
     })
-    .catch(() => res.status(500).send({ message: 'Непредвиденная ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Лайк не поставлен, некоректный id карточки' });
+      } else res.status(500).send({ message: 'Непредвиденная ошибка' });
+    });
 };
 
 const dislikeCard = (req, res) => {
@@ -72,7 +76,11 @@ const dislikeCard = (req, res) => {
       }
       return res.status(200).send(card);
     })
-    .catch(() => res.status(500).send({ message: 'Непредвиденная ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Лайк не удален, некоректный id карточки' });
+      } else res.status(500).send({ message: 'Непредвиденная ошибка' });
+    });
 };
 
 module.exports = {
