@@ -3,7 +3,7 @@ const Card = require('../models/card');
 const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.status(200).send(cards))
-    .catch(() => res.status(400).send({ message: 'Карточки не найдены' }));
+    .catch(() => res.status(500).send({ message: 'Непредвиденная ошибка' }));
 };
 
 const createCard = (req, res) => {
@@ -55,7 +55,7 @@ const likeCard = (req, res) => {
       }
       return res.status(200).send(card);
     })
-    .catch(() => res.status(400).send({ message: 'Лайк не поставлен' }));
+    .catch(() => res.status(500).send({ message: 'Непредвиденная ошибка' }));
 };
 
 const dislikeCard = (req, res) => {
@@ -72,7 +72,7 @@ const dislikeCard = (req, res) => {
       }
       return res.status(200).send(card);
     })
-    .catch(() => res.status(400).send({ message: 'Лайк не удален' }));
+    .catch(() => res.status(500).send({ message: 'Непредвиденная ошибка' }));
 };
 
 module.exports = {

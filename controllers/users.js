@@ -69,7 +69,14 @@ const updateAvatar = (req, res) => {
     { new: true, runValidators: true },
   )
     .then((updateAvatarData) => res.status(200).send(updateAvatarData))
-    .catch(() => res.status(400).send({ message: 'Аватар не обновлен' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({
+          message: 'Аватар не обновлен, переданы невалидные данные',
+        });
+      }
+      return res.status(500).send({ message: 'Непредвиденная ошибка' });
+    });
 };
 
 module.exports = {
