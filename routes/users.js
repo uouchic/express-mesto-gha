@@ -5,6 +5,7 @@ const {
   createUser,
   updateUser,
   updateAvatar,
+  login,
 } = require('../controllers/users');
 
 // возвращает всех пользователей
@@ -21,5 +22,11 @@ router.patch('/users/me', updateUser);
 
 // обновляет аватар
 router.patch('/users/me/avatar', updateAvatar);
+
+// залогинится
+router.post('/signin', login);
+
+// зарегистрироваться
+router.post('/signup', createUser);
 
 module.exports = router;

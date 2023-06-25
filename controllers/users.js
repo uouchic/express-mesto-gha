@@ -1,3 +1,8 @@
+const bcrypt = require('bcrypt');
+
+const saltRounds = 10;
+const jwt = require('jsonwebtoken');
+
 const User = require('../models/user');
 
 const getUsers = (req, res) => User.find({})
@@ -27,15 +32,40 @@ const getUserById = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const newUserData = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
-  return User.create(newUserData)
-    .then((newUser) => res.status(201).send(newUser))
+  if (!email || !password) {
+    return res.status(400).send({ message: 'Не переданы email или пароль' });
+  }
+
+  return User.findOne({ email })
+    .then((admin) => {
+      if (admin) {
+        return res
+          .status(409)
+          .send({ message: 'Пользователь с таким email уже существует' });
+      }
+
+
+      bcrypt.hash(password, saltRounds, function (err, hash) {
+        return User.create( {name, about, avatar, email, password: hash} ).then((newUser) => {
+          return res.status(201).send(newUser);
+            });
+
+
+    });
+
+
+
+
+
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({
-          message: 'Пользователь не создан, переданы невалидные данные',
-        });
+          message: 'Пользователь не создан, переданы невалидные данные' });
       }
       return res.status(500).send({ message: 'Непредвиденная ошибка' });
     });
@@ -79,10 +109,68 @@ const updateAvatar = (req, res) => {
     });
 };
 
+
+const login = (req, res) => {
+
+  const { email, password } = req.body;
+
+
+  if (!email || !password) {
+    return res.status(400).send({message: 'Не переданы почта или пароль'});
+  }
+
+
+  return User.findOne({ email })
+    .then((admin) => {
+      if (!admin) {
+        return res.status(403).send({ message: 'Пользователz с таким email не существует' });
+      }
+
+
+
+      bcrypt.compare(password, admin.password, function(err, isPasswordMatch) {
+        if (!isPasswordMatch) {
+
+          return res.status(403).send({ message: 'Неправильный пароль' });
+
+        }
+
+        // создаем и отдаем токен
+
+        const token = jwt.sign({ id: admin._id }, 'some-secret-key', { expiresIn: '7d' });
+
+        return res.status(200).send({token});
+
+    });
+
+
+
+
+
+
+
+
+    })
+
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({
+          message: 'Пользователь не найден, переданы невалидные данные' });
+      }
+      return res.status(500).send({ message: 'Непредвиденная ошибка' });
+    });
+
+
+
+
+
+}
+
 module.exports = {
   getUsers,
   getUserById,
   createUser,
   updateUser,
   updateAvatar,
+  login,
 };

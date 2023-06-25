@@ -7,7 +7,7 @@ const getCards = (req, res) => {
 };
 
 const createCard = (req, res) => {
-  const owner = req.user._id;
+  const owner = req.user.id;
   const { name, link } = req.body;
 
   return Card.create({ name, link, owner })
