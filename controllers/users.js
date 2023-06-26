@@ -31,6 +31,7 @@ const getUserById = (req, res) => {
     });
 };
 
+// eslint-disable-next-line consistent-return
 const createUser = (req, res) => {
   const {
     name, about, avatar, email, password,
@@ -40,19 +41,23 @@ const createUser = (req, res) => {
     return res.status(400).send({ message: 'Не переданы email или пароль' });
   }
 
-  return User.findOne({ email })
+  User.findOne({ email })
+
     // eslint-disable-next-line consistent-return
     .then((admin) => {
       if (admin) {
-        return res
+        res
           .status(409)
           .send({ message: 'Пользователь с таким email уже существует' });
+      } else {
+        return bcrypt.hash(password, saltRounds)
+          .then((hash) => User.create({
+            name, about, avatar, email, password: hash,
+          }));
       }
-
-      bcrypt.hash(password, saltRounds, (err, hash) => User.create({
-        name, about, avatar, email, password: hash,
-      }).then((newUser) => res.status(201).send(newUser)));
     })
+    .then((newUser) => res.status(201).send(newUser))
+
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Пользователь не создан, переданы невалидные данные' });
