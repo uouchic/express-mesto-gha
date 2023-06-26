@@ -115,19 +115,19 @@ const login = (req, res) => {
     .then((admin) => {
       if (!admin) {
         res.status(401).send({ message: 'Пользователя с таким email не существует' });
+      } else {
+        bcrypt.compare(password, admin.password, (err, isPasswordMatch) => {
+          if (!isPasswordMatch) {
+            return res.status(401).send({ message: 'Неправильный пароль' });
+          }
+
+          // создаем и отдаем токен
+
+          const token = jwt.sign({ id: admin._id }, 'some-secret-key', { expiresIn: '7d' });
+
+          return res.status(200).send({ token });
+        });
       }
-
-      bcrypt.compare(password, admin.password, (err, isPasswordMatch) => {
-        if (!isPasswordMatch) {
-          return res.status(401).send({ message: 'Неправильный пароль' });
-        }
-
-        // создаем и отдаем токен
-
-        const token = jwt.sign({ id: admin._id }, 'some-secret-key', { expiresIn: '7d' });
-
-        return res.status(200).send({ token });
-      });
     })
 
     .catch((err) => {
