@@ -6,6 +6,11 @@ const cardRouters = require('./routes/cards');
 
 const { auth } = require('./middlewares/auth');
 
+const {
+  createUser,
+  login,
+} = require('./controllers/users');
+
 const { PORT = 3000 } = process.env;
 
 mongoose
@@ -26,6 +31,9 @@ app.use(bodyParser.json());
 
 //   next();
 // });
+
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 app.use(auth);
 
