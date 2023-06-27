@@ -143,6 +143,28 @@ const login = (req, res) => {
     });
 };
 
+const getCurrentUser = (req, res) => {
+  const { id } = req.user;
+
+  User.findOne({ id })
+    .then((user) => {
+      if (!user) {
+        return res
+          .status(404)
+          .send({ message: 'Пользователь с таким id не найден' });
+      }
+      return res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(400).send({
+          message: 'Пользователь не найден, некоректный id пользователя',
+        });
+      }
+      return res.status(500).send({ message: 'Непредвиденная ошибка' });
+    });
+};
+
 module.exports = {
   getUsers,
   getUserById,
@@ -150,4 +172,5 @@ module.exports = {
   updateUser,
   updateAvatar,
   login,
+  getCurrentUser,
 };

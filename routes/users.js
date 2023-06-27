@@ -6,6 +6,7 @@ const {
   getUserById,
   updateUser,
   updateAvatar,
+  getCurrentUser,
 } = require('../controllers/users');
 
 // возвращает всех пользователей
@@ -45,6 +46,8 @@ router.patch(
 
   updateAvatar,
 );
+
+router.get('/users/me', getCurrentUser);
 
 router.use(errors());
 
