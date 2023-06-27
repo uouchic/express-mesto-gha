@@ -12,7 +12,7 @@ const {
 // возвращает все карточки
 router.get('/cards', getCards);
 
-// создаёт карточку
+// создаёт карточку места
 router.post(
   '/cards',
   celebrate({

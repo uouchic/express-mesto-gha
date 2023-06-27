@@ -34,7 +34,7 @@ router.patch(
   updateUser,
 );
 
-// обновляет аватар
+// обновляет аватар профиля
 router.patch(
   '/users/me/avatar',
   celebrate({
