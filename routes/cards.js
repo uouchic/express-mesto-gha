@@ -13,7 +13,8 @@ const {
 router.get('/cards', getCards);
 
 // создаёт карточку
-router.post('/cards',
+router.post(
+  '/cards',
   celebrate({
     body: Joi.object().keys({
       name: Joi.string().required().min(2).max(30),
@@ -21,16 +22,41 @@ router.post('/cards',
         .uri(),
     }),
   }),
-  createCard);
+  createCard,
+);
 
 // удаляет карточку по идентификатору
-router.delete('/cards/:cardId', deleteCardById);
+router.delete(
+  '/cards/:cardId',
+  celebrate({
+    params: Joi.object().keys({
+      cardId: Joi.string().required().min(24).max(24),
+    }),
+  }),
+  deleteCardById,
+);
 
 // поставить лайк карточке
-router.put('/cards/:cardId/likes', likeCard);
+router.put(
+  '/cards/:cardId/likes',
+  celebrate({
+    params: Joi.object().keys({
+      cardId: Joi.string().required().min(24).max(24),
+    }),
+  }),
+  likeCard,
+);
 
 // убрать лайк с карточки
-router.delete('/cards/:cardId/likes', dislikeCard);
+router.delete(
+  '/cards/:cardId/likes',
+  celebrate({
+    params: Joi.object().keys({
+      cardId: Joi.string().required().min(24).max(24),
+    }),
+  }),
+  dislikeCard,
+);
 
 router.use(errors());
 
