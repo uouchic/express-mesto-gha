@@ -56,7 +56,12 @@ const createUser = (req, res) => {
           }));
       }
     })
-    .then((newUser) => res.status(201).send(newUser))
+    .then((newUser) => res.status(201).send({
+      name: newUser.name,
+      about: newUser.about,
+      avatar: newUser.avatar,
+      email: newUser.email,
+    }))
 
     .catch((err) => {
       if (err.name === 'ValidationError') {
