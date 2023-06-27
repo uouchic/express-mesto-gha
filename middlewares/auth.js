@@ -20,11 +20,9 @@ const auth = (req, res, next) => {
       .send({ message: 'Необходима авторизация' });
   }
 
-  req.user = payload; // записываем пейлоуд в объект запроса
+  req.user = payload;
 
-  // console.log(payload);
-
-  next(); // пропускаем запрос дальше
+  next();
 };
 
 module.exports = {

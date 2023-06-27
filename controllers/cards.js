@@ -25,14 +25,23 @@ const createCard = (req, res) => {
 const deleteCardById = (req, res) => {
   const { cardId } = req.params;
 
-  return Card.findByIdAndRemove(cardId)
+  Card.findById(cardId)
+    // eslint-disable-next-line consistent-return
     .then((card) => {
       if (!card) {
         return res
           .status(404)
           .send({ message: 'Карточка с таким id не найдена' });
       }
-      return res.status(200).send(card);
+      // eslint-disable-next-line eqeqeq
+      if (card.owner == req.user.id) {
+        return Card.findByIdAndRemove(cardId)
+          // eslint-disable-next-line no-shadow
+          .then((card) => {
+            res.status(200).send(card);
+          });
+      }
+      res.status(400).send({ message: 'Можно удалять только свои карточки' });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
