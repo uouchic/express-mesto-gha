@@ -41,7 +41,7 @@ const deleteCardById = (req, res) => {
             res.status(200).send(card);
           });
       }
-      res.status(400).send({ message: 'Можно удалять только свои карточки' });
+      res.status(403).send({ message: 'Можно удалять только свои карточки' });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
