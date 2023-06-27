@@ -12,6 +12,8 @@ const {
 // возвращает всех пользователей
 router.get('/users', getUsers);
 
+router.get('/users/me', getCurrentUser);
+
 // возвращает пользователя по _id
 router.get(
   '/users/:userId',
@@ -46,8 +48,6 @@ router.patch(
 
   updateAvatar,
 );
-
-router.get('/users/me', getCurrentUser);
 
 router.use(errors());
 

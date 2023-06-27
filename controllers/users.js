@@ -146,7 +146,9 @@ const login = (req, res) => {
 const getCurrentUser = (req, res) => {
   const { id } = req.user;
 
-  User.findOne({ id })
+  // console.log(id);
+
+  User.findById(id)
     .then((user) => {
       if (!user) {
         return res
