@@ -19,10 +19,6 @@ const createCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequest('Аватар не обновлен, переданы невалидные данные'));
-
-        // return res
-        //   .status(400)
-        //   .send({ message: 'Карточка не создана, переданы невалидные данные' });
       } else {
         next(err);
       }
@@ -33,14 +29,9 @@ const deleteCardById = (req, res, next) => {
   const { cardId } = req.params;
 
   Card.findById(cardId)
-    // eslint-disable-next-line consistent-return
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Карточка с таким id не найдена');
-
-        // return res
-        //   .status(404)
-        //   .send({ message: 'Карточка с таким id не найдена' });
       }
       // eslint-disable-next-line eqeqeq
       if (card.owner == req.user.id) {
@@ -51,13 +42,10 @@ const deleteCardById = (req, res, next) => {
           });
       }
       throw new ForbiddenError('Можно удалять только свои карточки');
-      // res.status(403).send({ message: 'Можно удалять только свои карточки' });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Карточка не удалена, некоректный id карточки'));
-
-        // res.status(400).send({ message: 'Карточка не удалена, некоректный id карточки' });
       } else {
         next(err);
       }
@@ -73,18 +61,12 @@ const likeCard = (req, res, next) => {
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Карточка с таким id не найдена');
-
-        // return res
-        //   .status(404)
-        //   .send({ message: 'Карточка с таким id не найдена' });
       }
       return res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Лайк не поставлен, некоректный id карточки'));
-
-        // res.status(400).send({ message: 'Лайк не поставлен, некоректный id карточки' });
       } else {
         next(err);
       }
@@ -100,18 +82,12 @@ const dislikeCard = (req, res, next) => {
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Карточка с таким id не найдена');
-
-        // return res
-        //   .status(404)
-        //   .send({ message: 'Карточка с таким id не найдена' });
       }
       return res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Лайк не удален, некоректный id карточки'));
-
-        // res.status(400).send({ message: 'Лайк не удален, некоректный id карточки' });
       } else {
         next(err);
       }

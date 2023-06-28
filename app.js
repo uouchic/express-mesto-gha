@@ -29,14 +29,6 @@ const app = express();
 
 app.use(bodyParser.json());
 
-// app.use((req, res, next) => {
-//   req.user = {
-//     _id: '648f3229f1be55f3c7c3b7be',
-//   };
-
-//   next();
-// });
-
 app.post(
   '/signin',
   celebrate({
@@ -62,8 +54,6 @@ app.post(
   createUser,
 );
 
-app.use(errors());
-
 app.use(auth);
 
 app.use(userRouters);
@@ -71,9 +61,9 @@ app.use(cardRouters);
 
 app.use('*', (req, res, next) => {
   next(new NotFoundError('Маршрут не найден'));
-
-  //  res.status(404).send({ message: 'Страница не найдена' });
 });
+
+app.use(errors());
 
 app.use((err, req, res, next) => {
   if (err.statusCode) {
