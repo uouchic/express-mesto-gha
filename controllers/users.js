@@ -27,7 +27,7 @@ const getUserById = (req, res, next) => {
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequest('Пользователь 555 не найден, некоректный id пользователя'));
+        next(new BadRequest('Пользователь не найден, некоректный id пользователя'));
         // return res.status(400).send({
         //   message: 'Пользователь не найден, некоректный id пользователя',
         // });
