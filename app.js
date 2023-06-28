@@ -14,6 +14,8 @@ const {
   login,
 } = require('./controllers/users');
 
+const NotFoundError = require('./errors/not-found-error');
+
 const { PORT = 3000 } = process.env;
 
 mongoose
@@ -67,8 +69,19 @@ app.use(auth);
 app.use(userRouters);
 app.use(cardRouters);
 
-app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Страница не найдена' });
+app.use('*', (req, res, next) => {
+  next(new NotFoundError('Маршрут не найден'));
+
+  //  res.status(404).send({ message: 'Страница не найдена' });
+});
+
+app.use((err, req, res, next) => {
+  if (err.statusCode) {
+    res.status(err.statusCode).send({ message: err.message });
+  } else {
+    res.status(500).send({ message: 'На сервере произошла ошибка' });
+  }
+  next();
 });
 
 app.listen(PORT, () => {

@@ -5,40 +5,47 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 
-const getUsers = (req, res) => User.find({})
-  .then((users) => res.status(200).send(users))
-  .catch(() => res.status(500).send({ message: 'Непредвиденная ошибка' }));
+const NotFoundError = require('../errors/not-found-error');
+const BadRequest = require('../errors/bad-request-error');
+const UnauthorizedError = require('../errors/unauthorized-error');
+const ConflictError = require('../errors/conflict-errors');
 
-const getUserById = (req, res) => {
+const getUsers = (req, res, next) => User.find({})
+  .then((users) => res.status(200).send(users))
+  .catch(next);
+
+const getUserById = (req, res, next) => {
   const { userId } = req.params;
 
   return User.findById(userId)
     .then((user) => {
       if (!user) {
-        return res
-          .status(404)
-          .send({ message: 'Пользователь с таким id не найден' });
+        throw new NotFoundError('Пользователь с таким id не найден');
       }
       return res.status(200).send(user);
     })
+    // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({
-          message: 'Пользователь не найден, некоректный id пользователя',
-        });
+        next(new BadRequest('Пользователь 555 не найден, некоректный id пользователя'));
+        // return res.status(400).send({
+        //   message: 'Пользователь не найден, некоректный id пользователя',
+        // });
+      } else {
+        next(err);
       }
-      return res.status(500).send({ message: 'Непредвиденная ошибка' });
     });
 };
 
 // eslint-disable-next-line consistent-return
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
 
   if (!email || !password) {
-    return res.status(400).send({ message: 'Не переданы email или пароль' });
+    throw new BadRequest('Не переданы email или пароль');
+    // return res.status(400).send({ message: 'Не переданы email или пароль' });
   }
 
   User.findOne({ email })
@@ -46,9 +53,10 @@ const createUser = (req, res) => {
     // eslint-disable-next-line consistent-return
     .then((admin) => {
       if (admin) {
-        res
-          .status(409)
-          .send({ message: 'Пользователь с таким email уже существует' });
+        throw new ConflictError('Пользователь с таким email уже существует');
+        // res
+        //   .status(409)
+        //   .send({ message: 'Пользователь с таким email уже существует' });
       } else {
         return bcrypt.hash(password, saltRounds)
           .then((hash) => User.create({
@@ -65,13 +73,17 @@ const createUser = (req, res) => {
 
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Пользователь не создан, переданы невалидные данные' });
+        next(new BadRequest('Пользователь не создан, переданы невалидные данные'));
+
+        // return res
+        // .status(400).send({ message: 'Пользователь не создан, переданы невалидные данные' });
+      } else {
+        next(err);
       }
-      return res.status(500).send({ message: 'Непредвиденная ошибка' });
     });
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const { name, about } = req.body;
 
   return User.findByIdAndUpdate(
@@ -82,15 +94,18 @@ const updateUser = (req, res) => {
     .then((updateUserData) => res.status(200).send(updateUserData))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({
-          message: 'Пользователь не обновлен, переданы невалидные данные',
-        });
+        next(new BadRequest('Пользователь не обновлен, переданы невалидные данные'));
+
+        // return res.status(400).send({
+        //   message: 'Пользователь не обновлен, переданы невалидные данные',
+        // });
+      } else {
+        next(err);
       }
-      return res.status(500).send({ message: 'Непредвиденная ошибка' });
     });
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   return User.findByIdAndUpdate(
@@ -101,29 +116,35 @@ const updateAvatar = (req, res) => {
     .then((updateAvatarData) => res.status(200).send(updateAvatarData))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({
-          message: 'Аватар не обновлен, переданы невалидные данные',
-        });
+        next(new BadRequest('Аватар не обновлен, переданы невалидные данные'));
+
+        // return res.status(400).send({
+        //   message: 'Аватар не обновлен, переданы невалидные данные',
+        // });
+      } else {
+        next(err);
       }
-      return res.status(500).send({ message: 'Непредвиденная ошибка' });
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).send({ message: 'Не переданы почта или пароль' });
+    throw new BadRequest('Не переданы email или пароль');
+    // return res.status(400).send({ message: 'Не переданы почта или пароль' });
   }
 
   return User.findOne({ email }).select('+password')
     .then((admin) => {
       if (!admin) {
-        res.status(401).send({ message: 'Пользователя с таким email не существует' });
+        throw new UnauthorizedError('Пользователя с таким email не существует');
+        // res.status(401).send({ message: 'Пользователя с таким email не существует' });
       } else {
         bcrypt.compare(password, admin.password, (err, isPasswordMatch) => {
           if (!isPasswordMatch) {
-            return res.status(401).send({ message: 'Неправильный пароль' });
+            throw new UnauthorizedError('Неправильный пароль');
+            // return res.status(401).send({ message: 'Неправильный пароль' });
           }
 
           // создаем и отдаем токен
@@ -137,31 +158,39 @@ const login = (req, res) => {
 
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Пользователь не найден, переданы невалидные данные' });
+        next(new BadRequest('Пользователь не найден, переданы невалидные данные'));
+
+        // return res
+        // .status(400).send({ message: 'Пользователь не найден, переданы невалидные данные' });
+      } else {
+        next(err);
       }
-      return res.status(500).send({ message: 'Непредвиденная ошибка' });
     });
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   const { id } = req.user;
 
   User.findById(id)
     .then((user) => {
       if (!user) {
-        return res
-          .status(404)
-          .send({ message: 'Пользователь с таким id не найден' });
+        throw new NotFoundError('Пользователь с таким id не найден');
+        // return res
+        //   .status(404)
+        //   .send({ message: 'Пользователь с таким id не найден' });
       }
       return res.status(200).send(user);
     })
+
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({
-          message: 'Пользователь не найден, некоректный id пользователя',
-        });
+        next(new BadRequest('Пользователь не найден, переданы невалидные данные'));
+        // return res.status(400).send({
+        //   message: 'Пользователь не найден, некоректный id пользователя',
+        // });
+      } else {
+        next(err);
       }
-      return res.status(500).send({ message: 'Непредвиденная ошибка' });
     });
 };
 
