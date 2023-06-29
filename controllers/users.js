@@ -120,7 +120,7 @@ const login = (req, res, next) => {
       } else {
         bcrypt.compare(password, admin.password, (err, isPasswordMatch) => {
           if (!isPasswordMatch) {
-            throw new UnauthorizedError('Неправильный пароль');
+            return next(new UnauthorizedError('Неправильный пароль'));
           }
 
           const token = jwt.sign({ id: admin._id }, 'some-secret-key', { expiresIn: '7d' });
